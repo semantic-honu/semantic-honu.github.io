@@ -1,0 +1,334 @@
+    <!-- Console warning filter for prototype demo (Tailwind Play CDN & file:// security warnings) -->
+    <script>
+        const _origWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === 'string') {
+                if (args[0].includes('cdn.tailwindcss.com') || args[0].includes('file:')) return;
+            }
+            _origWarn.apply(console, args);
+        };
+    </script>
+    <!-- Tailwind CSS (Play CDN v3.4.16 Version Locked) -->
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (v0.474.0 Version Locked) -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.474.0/dist/umd/lucide.min.js"></script>
+    <!-- Alpine.js (v3.14.8 Version Locked) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-indigo-500 selection:text-white p-6 md:p-10 pb-24"
+      x-data="bulkActionsApp()">
+
+    <!-- 背景装飾グラデーション -->
+    <div class="fixed top-0 left-1/3 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+    <div class="max-w-6xl mx-auto space-y-8">
+        <!-- ページヘッダー -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                        UX Pattern: Bulk Operations
+                    </span>
+                    <span class="text-xs text-slate-400">業務システム必須・複数行選択 ＆ フローティング一括操作</span>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">行選択 ＋ 一括操作 (Bulk Actions) デモ</h1>
+            </div>
+            <!-- 導線リンク -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <a href="index.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 text-xs font-semibold transition-all">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>統合ポータル</span>
+                </a>
+                <a href="drower.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all">
+                    <i data-lucide="panel-right" class="w-4 h-4 text-purple-400"></i>
+                    <span>ドロワー</span>
+                </a>
+                <a href="patterns.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all">
+                    <i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i>
+                    <span>UXパターン</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- 機能解説メッセージ -->
+        <div class="p-4 rounded-2xl bg-indigo-950/30 border border-indigo-800/30 flex items-start gap-3.5">
+            <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 shrink-0">
+                <i data-lucide="check-square" class="w-5 h-5"></i>
+            </div>
+            <div class="text-xs leading-relaxed text-slate-300">
+                <strong class="text-white">【操作ガイド】</strong> テーブルの左端チェックボックスで任意の行（またはヘッダーの全選択チェック）を選択してください。
+                1件以上選択されると、画面下部に<strong class="text-indigo-300">フローティング一括操作アクションバー</strong>がヌッと出現し、一括処理を実行できます。
+            </div>
+        </div>
+
+        <!-- テーブルエリア -->
+        <main class="bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700/60 shadow-2xl overflow-hidden">
+            <!-- フィルター＆テーブルツールバー -->
+            <div class="p-4 bg-slate-800/80 border-b border-slate-700/60 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <div class="relative flex-1 md:w-64">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" x-model="searchQuery" placeholder="契約ID・企業名・担当者で検索..." 
+                               class="w-full pl-9 pr-4 py-2 bg-slate-900/80 border border-slate-700/80 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <span class="text-xs text-slate-400">全 <strong class="text-slate-200" x-text="items.length"></strong> 件</span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-400 font-mono" x-show="selectedIds.length > 0">
+                        <span class="text-indigo-400 font-bold" x-text="selectedIds.length"></span> 件選択中
+                    </span>
+                    <button @click="toggleSelectAll()" 
+                            class="px-3 py-1.5 bg-slate-700/60 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition-all">
+                        <span x-text="isAllSelected ? 'すべての選択を解除' : '全行を選択'"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800/90 border-b border-slate-700/80 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            <!-- 全選択チェックボックス -->
+                            <th class="p-4 pl-6 w-12">
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" 
+                                           :checked="isAllSelected" 
+                                           @change="toggleSelectAll()" 
+                                           class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-900 cursor-pointer">
+                                </label>
+                            </th>
+                            <th class="p-4">契約ID</th>
+                            <th class="p-4">クライアント企業 / 担当者</th>
+                            <th class="p-4">契約プラン</th>
+                            <th class="p-4">月額費用</th>
+                            <th class="p-4">ステータス</th>
+                            <th class="p-4 pr-6 text-right">個別操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y divide-slate-700/40">
+                        <template x-for="item in filteredItems" :key="item.id">
+                            <tr class="transition-colors group cursor-pointer"
+                                :class="selectedIds.includes(item.id) ? 'bg-indigo-950/40 border-indigo-500/50' : 'hover:bg-slate-700/30'"
+                                @click="toggleSelect(item.id)">
+                                <!-- 行選択チェックボックス -->
+                                <td class="p-4 pl-6" @click.stop>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" 
+                                               :value="item.id" 
+                                               :checked="selectedIds.includes(item.id)" 
+                                               @change="toggleSelect(item.id)" 
+                                               class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-indigo-500 focus:ring-offset-slate-900 cursor-pointer">
+                                    </label>
+                                </td>
+                                <td class="p-4 font-mono text-xs text-indigo-300">
+                                    <span class="px-2 py-1 bg-indigo-950/60 border border-indigo-800/40 rounded-md" x-text="item.id"></span>
+                                </td>
+                                <td class="p-4">
+                                    <div class="font-semibold text-slate-100 group-hover:text-indigo-400 transition-colors" x-text="item.company"></div>
+                                    <div class="text-xs text-slate-400" x-text="'担当: ' + item.contact"></div>
+                                </td>
+                                <td class="p-4">
+                                    <span class="text-xs px-2.5 py-1 rounded-lg bg-slate-700/50 border border-slate-600/50 text-slate-300" x-text="item.plan"></span>
+                                </td>
+                                <td class="p-4 font-mono text-slate-200" x-text="'¥' + item.price.toLocaleString()"></td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                                          :class="statusBadgeClass(item.status)">
+                                        <span class="w-1.5 h-1.5 rounded-full" :class="item.status === '有効' ? 'bg-emerald-400 animate-pulse' : (item.status === '保留' ? 'bg-amber-400' : 'bg-slate-500')"></span>
+                                        <span x-text="item.status"></span>
+                                    </span>
+                                </td>
+                                <td class="p-4 pr-6 text-right" @click.stop>
+                                    <button class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-700 transition-colors">
+                                        <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- 🚀 フローティング一括操作アクションバー (Bulk Bar) -->
+    <!-- ========================================== -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4 pointer-events-none"
+         x-show="selectedIds.length > 0"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-12 scale-95"
+         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+         x-transition:leave-end="opacity-0 translate-y-12 scale-95"
+         style="display: none;">
+        
+        <div class="pointer-events-auto bg-slate-900/90 backdrop-blur-xl border border-indigo-500/40 rounded-2xl shadow-2xl p-3.5 flex items-center justify-between gap-4 ring-1 ring-indigo-500/20">
+            
+            <!-- 選択カウント ＆ クリア -->
+            <div class="flex items-center gap-3 pl-2">
+                <span class="flex items-center justify-center w-7 h-7 rounded-xl bg-indigo-600 text-white font-bold text-xs font-mono shadow-md shadow-indigo-600/30" x-text="selectedIds.length"></span>
+                <div>
+                    <div class="text-xs font-bold text-white">件選択中</div>
+                    <button @click="clearSelection()" class="text-[10px] text-slate-400 hover:text-slate-200 underline">全選択解除</button>
+                </div>
+            </div>
+
+            <!-- アクションボタン群 -->
+            <div class="flex items-center gap-2">
+                <!-- 1. ステータス一括変更 -->
+                <button @click="bulkUpdateStatus('有効')" 
+                        class="px-3 py-2 bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white border border-emerald-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all">
+                    <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">一括</span>有効化
+                </button>
+
+                <!-- 2. CSVエクスポート -->
+                <button @click="bulkExportCSV()" 
+                        class="px-3 py-2 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">CSV</span>出力
+                </button>
+
+                <!-- 3. 一括削除 -->
+                <button @click="bulkDelete()" 
+                        class="px-3 py-2 bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">一括</span>削除
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- トースト通知 -->
+    <div class="fixed bottom-6 right-6 z-50"
+         x-show="showToast"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 translate-y-4"
+         style="display: none;">
+        <div class="flex items-center gap-3 px-4 py-3 bg-slate-900 border border-indigo-500/40 text-slate-100 rounded-2xl shadow-2xl">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-indigo-400"></i>
+            <span class="text-xs font-semibold" x-text="toastMessage"></span>
+        </div>
+    </div>
+
+
+    <!-- Script Block -->
+    <script>
+        function bulkActionsApp() {
+            return {
+                searchQuery: '',
+                selectedIds: [],
+                showToast: false,
+                toastMessage: '',
+                items: [
+                    { id: 'CNT-2026-001', company: '株式会社 ネクサス・テクノロジーズ (架空)', contact: 'デモ 太郎', plan: 'Enterprise Pro', price: 240000, status: '有効' },
+                    { id: 'CNT-2026-002', company: 'サイバー・フロンティア合同会社 (架空)', contact: 'サンプル 次郎', plan: 'Standard Business', price: 98000, status: '有効' },
+                    { id: 'CNT-2026-003', company: 'アーク・ホールディングス (架空)', contact: 'テスト 健太', plan: 'Enterprise Pro', price: 240000, status: '保留' },
+                    { id: 'CNT-2026-004', company: 'クォンタム・データ・システムズ (架空)', contact: 'モック 美咲', plan: 'Starter Pack', price: 35000, status: '無効' },
+                    { id: 'CNT-2026-005', company: 'ステラ・クリエイティブ合同会社 (架空)', contact: '仮名 葵', plan: 'Standard Business', price: 98000, status: '有効' },
+                ],
+
+                get filteredItems() {
+                    if (!this.searchQuery.trim()) return this.items;
+                    const q = this.searchQuery.toLowerCase();
+                    return this.items.filter(i => 
+                        i.id.toLowerCase().includes(q) ||
+                        i.company.toLowerCase().includes(q) ||
+                        i.contact.toLowerCase().includes(q) ||
+                        i.plan.toLowerCase().includes(q)
+                    );
+                },
+
+                get isAllSelected() {
+                    if (this.filteredItems.length === 0) return false;
+                    return this.filteredItems.every(i => this.selectedIds.includes(i.id));
+                },
+
+                toggleSelectAll() {
+                    if (this.isAllSelected) {
+                        this.selectedIds = [];
+                    } else {
+                        this.selectedIds = this.filteredItems.map(i => i.id);
+                    }
+                },
+
+                toggleSelect(id) {
+                    if (this.selectedIds.includes(id)) {
+                        this.selectedIds = this.selectedIds.filter(i => i !== id);
+                    } else {
+                        this.selectedIds.push(id);
+                    }
+                },
+
+                clearSelection() {
+                    this.selectedIds = [];
+                },
+
+                statusBadgeClass(status) {
+                    if (status === '有効') return 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                    if (status === '保留') return 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                    return 'bg-slate-700/50 text-slate-400 border border-slate-600/50';
+                },
+
+                bulkUpdateStatus(newStatus) {
+                    this.items.forEach(i => {
+                        if (this.selectedIds.includes(i.id)) {
+                            i.status = newStatus;
+                        }
+                    });
+                    this.triggerToast(`選択された ${this.selectedIds.length} 件を一括「${newStatus}」に更新しました`);
+                    this.clearSelection();
+                },
+
+                bulkExportCSV() {
+                    this.triggerToast(`選択された ${this.selectedIds.length} 件のデータを出力しました (CSV)`);
+                },
+
+                bulkDelete() {
+                    const count = this.selectedIds.length;
+                    this.items = this.items.filter(i => !this.selectedIds.includes(i.id));
+                    this.triggerToast(`${count} 件のデータを一括削除しました`);
+                    this.clearSelection();
+                },
+
+                triggerToast(msg) {
+                    this.toastMessage = msg;
+                    this.showToast = true;
+                    setTimeout(() => { this.showToast = false; }, 3000);
+                },
+
+                init() {
+                    this.$nextTick(() => { lucide.createIcons(); });
+                }
+            }
+        }
+    </script>
+</body>
+</html>

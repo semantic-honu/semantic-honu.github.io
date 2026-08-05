@@ -1,0 +1,318 @@
+    <!-- Console warning filter for prototype demo (Tailwind Play CDN & file:// security warnings) -->
+    <script>
+        const _origWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === 'string') {
+                if (args[0].includes('cdn.tailwindcss.com') || args[0].includes('file:')) return;
+            }
+            _origWarn.apply(console, args);
+        };
+    </script>
+    <!-- Tailwind CSS (Play CDN v3.4.16 Version Locked) -->
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <!-- Google Fonts (Plus Jakarta Sans & JetBrains Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (v0.474.0 Version Locked) -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.474.0/dist/umd/lucide.min.js"></script>
+    <!-- Alpine.js (v3.14.8 Version Locked) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-indigo-500 selection:text-white"
+      x-data="drawerApp()"
+      @keydown.escape.window="closeDrawer()">
+
+    <!-- 背景装飾グラデーション -->
+    <div class="fixed top-0 left-1/4 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+    <div class="max-w-6xl mx-auto p-6 md:p-10">
+        <!-- ヘッダーエリア -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-800">
+            <div>
+                <div class="flex items-center gap-3 mb-1">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                        Interactive Demo
+                    </span>
+                    <span class="text-xs text-slate-400">要件定義・提案用コンポーネント</span>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">ユーザー管理システム</h1>
+            </div>
+            <!-- アクションボタン＆検索 -->
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600 border border-indigo-500/30 text-indigo-300 hover:text-white text-xs font-semibold transition-all">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>統合ポータル (index.html)</span>
+                </a>
+                <a href="patterns.html" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all">
+                    <i data-lucide="layout-grid" class="w-4 h-4 text-purple-400"></i>
+                    <span>UXパターン集</span>
+                </a>
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" x-model="searchQuery" placeholder="名前・ID・部署で検索..." 
+                           class="w-64 pl-9 pr-4 py-2 bg-slate-800/80 border border-slate-700/80 rounded-xl text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                </div>
+            </div>
+        </header>
+
+        <!-- テーブルメインコンテンツ -->
+        <main class="bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700/60 shadow-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800/80 border-b border-slate-700/80 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                            <th class="p-4 pl-6">ユーザー</th>
+                            <th class="p-4">ID</th>
+                            <th class="p-4">所属部署 / 役職</th>
+                            <th class="p-4">ステータス</th>
+                            <th class="p-4 pr-6 text-right">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y divide-slate-700/40">
+                        <template x-for="user in filteredUsers" :key="user.id">
+                            <tr class="hover:bg-slate-700/30 transition-colors group cursor-pointer" @click="openDrawer(user)">
+                                <td class="p-4 pl-6">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ring-2 ring-indigo-500/20"
+                                             :class="user.avatarBg">
+                                            <span x-text="user.initials"></span>
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-slate-200 group-hover:text-indigo-400 transition-colors" x-text="user.name"></div>
+                                            <div class="text-xs text-slate-400 font-mono" x-text="user.email"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <span class="font-mono text-xs text-indigo-300 px-2 py-1 bg-indigo-950/50 border border-indigo-800/40 rounded-md" x-text="user.id"></span>
+                                </td>
+                                <td class="p-4">
+                                    <div class="text-slate-300" x-text="user.dept"></div>
+                                    <div class="text-xs text-slate-500" x-text="user.role"></div>
+                                </td>
+                                <td class="p-4">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                                          :class="user.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'">
+                                        <span class="w-1.5 h-1.5 rounded-full" :class="user.status === 'Active' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'"></span>
+                                        <span x-text="user.status"></span>
+                                    </span>
+                                </td>
+                                <td class="p-4 pr-6 text-right" @click.stop>
+                                    <button @click="openDrawer(user)" 
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/20 hover:border-indigo-500 text-xs font-semibold transition-all">
+                                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                        <span>詳細・編集</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            <!-- フッター情報 -->
+            <div class="p-4 bg-slate-800/40 border-t border-slate-700/60 flex items-center justify-between text-xs text-slate-400">
+                <span>全 <strong class="text-slate-200" x-text="users.length"></strong> 件を表示中</span>
+                <span class="flex items-center gap-1"><i data-lucide="info" class="w-3.5 h-3.5 text-indigo-400"></i> 行をクリックするか「詳細・編集」ボタンでスライドドロワーが開きます</span>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 🛏️ モダン・ライトウエイト ドロワー UI -->
+    <!-- ========================================== -->
+
+    <!-- 背景のグレーアウト・バックドロップ (オーバーレイ) -->
+    <div class="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-40"
+         x-show="isDrawerOpen"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="closeDrawer()"
+         style="display: none;"></div>
+
+    <!-- ドロワー本体 -->
+    <aside class="fixed inset-y-0 right-0 w-full max-w-lg bg-slate-900 border-l border-slate-800 shadow-2xl z-50 flex flex-col"
+           x-show="isDrawerOpen"
+           x-transition:enter="transition ease-out duration-300 transform"
+           x-transition:enter-start="translate-x-full"
+           x-transition:enter-end="translate-x-0"
+           x-transition:leave="transition ease-in duration-200 transform"
+           x-transition:leave-start="translate-x-0"
+           x-transition:leave-end="translate-x-full"
+           style="display: none;">
+
+        <!-- ドロワーヘッダー -->
+        <div class="flex items-center justify-between p-6 border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                    <i data-lucide="user-cog" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-white">ユーザー詳細・設定</h2>
+                    <p class="text-xs text-slate-400">リアルタイムにデータを編集・反映できます</p>
+                </div>
+            </div>
+            <button @click="closeDrawer()" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- ドロワーフォーム（x-ifで囲んで selectedUser が null の初期評価時エラーを完全防止） -->
+        <template x-if="selectedUser">
+            <div class="p-6 space-y-6 flex-1 overflow-y-auto">
+                <!-- ユーザープロフィールサマリー -->
+                <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm ring-2 ring-indigo-500/30"
+                         :class="selectedUser.avatarBg">
+                        <span x-text="selectedUser.initials"></span>
+                    </div>
+                    <div>
+                        <div class="font-bold text-white text-base" x-text="selectedUser.name"></div>
+                        <div class="text-xs font-mono text-indigo-400" x-text="selectedUser.id"></div>
+                    </div>
+                </div>
+
+                <!-- 入力フォームグループ -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">氏名</label>
+                        <input type="text" x-model="selectedUser.name"
+                               class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">所属部署</label>
+                            <input type="text" x-model="selectedUser.dept"
+                                   class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">役職</label>
+                            <input type="text" x-model="selectedUser.role"
+                                   class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">メールアドレス</label>
+                        <input type="email" x-model="selectedUser.email"
+                               class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all font-mono">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">ステータス</label>
+                        <select x-model="selectedUser.status"
+                                class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                            <option value="Active">Active (アクティブ)</option>
+                            <option value="Away">Away (離脱・休暇)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <!-- ドロワーフッター -->
+        <div class="p-6 border-t border-slate-800 bg-slate-900/80 backdrop-blur-sm flex items-center gap-3">
+            <button @click="saveUser()" 
+                    class="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2">
+                <i data-lucide="check" class="w-4 h-4"></i>
+                <span>変更内容を保存</span>
+            </button>
+            <button @click="closeDrawer()" 
+                    class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-sm transition-all">
+                キャンセル
+            </button>
+        </div>
+    </aside>
+
+    <!-- トースト通知 -->
+    <div class="fixed bottom-6 right-6 z-50"
+         x-show="showToast"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 translate-y-4"
+         style="display: none;">
+        <div class="flex items-center gap-3 px-4 py-3 bg-emerald-950 border border-emerald-500/40 text-emerald-200 rounded-xl shadow-2xl">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+            <span class="text-sm font-medium" x-text="toastMessage"></span>
+        </div>
+    </div>
+
+    <!-- Script Block (Alpine Application Data) -->
+    <script>
+        function drawerApp() {
+            return {
+                isDrawerOpen: false,
+                // null評価エラー防止のため初期デフォルトオブジェクトを保持
+                selectedUser: { id: '', name: '', dept: '', role: '', email: '', status: 'Active', avatarBg: '' },
+                searchQuery: '',
+                showToast: false,
+                toastMessage: '',
+                users: [
+                    { id: 'USR-001', name: 'デモ 太郎', initials: 'DT', dept: 'プラットフォーム開発部', role: 'シニアアーキテクト', email: 'demo.taro@nexus-demo.internal', status: 'Active', avatarBg: 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' },
+                    { id: 'USR-002', name: 'サンプル 美咲', initials: 'SM', dept: 'DXプロモーション課', role: 'プロダクトマネージャー', email: 'sample.misaki@nexus-demo.internal', status: 'Active', avatarBg: 'bg-purple-600/20 text-purple-400 border-purple-500/30' },
+                    { id: 'USR-003', name: 'テスト 健太', initials: 'TK', dept: 'UI/UXデザインスタジオ', role: 'リードデザイナー', email: 'test.kenta@nexus-demo.internal', status: 'Away', avatarBg: 'bg-emerald-600/20 text-emerald-400 border-emerald-500/30' },
+                    { id: 'USR-004', name: 'モック 葵', initials: 'MA', dept: 'データアナリティクスG', role: 'グロースアナリスト', email: 'mock.aoi@nexus-demo.internal', status: 'Active', avatarBg: 'bg-amber-600/20 text-amber-400 border-amber-500/30' },
+                ],
+                get filteredUsers() {
+                    if (!this.searchQuery.trim()) return this.users;
+                    const q = this.searchQuery.toLowerCase();
+                    return this.users.filter(u => 
+                        u.name.toLowerCase().includes(q) ||
+                        u.id.toLowerCase().includes(q) ||
+                        u.dept.toLowerCase().includes(q) ||
+                        u.role.toLowerCase().includes(q)
+                    );
+                },
+                openDrawer(user) {
+                    this.selectedUser = JSON.parse(JSON.stringify(user));
+                    this.isDrawerOpen = true;
+                    this.$nextTick(() => { lucide.createIcons(); });
+                },
+                closeDrawer() {
+                    this.isDrawerOpen = false;
+                },
+                saveUser() {
+                    if (!this.selectedUser || !this.selectedUser.id) return;
+                    const idx = this.users.findIndex(u => u.id === this.selectedUser.id);
+                    if (idx !== -1) {
+                        this.users[idx] = JSON.parse(JSON.stringify(this.selectedUser));
+                    }
+                    this.closeDrawer();
+                    this.triggerToast(`${this.selectedUser.name} さんの情報を更新しました`);
+                },
+                triggerToast(msg) {
+                    this.toastMessage = msg;
+                    this.showToast = true;
+                    setTimeout(() => { this.showToast = false; }, 3000);
+                },
+                init() {
+                    this.$nextTick(() => { lucide.createIcons(); });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,710 @@
+    <!-- Console warning filter for prototype demo (Tailwind Play CDN & file:// security warnings) -->
+    <script>
+        const _origWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === 'string') {
+                if (args[0].includes('cdn.tailwindcss.com') || args[0].includes('file:')) return;
+            }
+            _origWarn.apply(console, args);
+        };
+    </script>
+    <!-- Tailwind CSS (Play CDN v3.4.16 Version Locked) -->
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (v0.474.0 Version Locked) -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.474.0/dist/umd/lucide.min.js"></script>
+    <!-- Alpine.js (v3.14.8 Version Locked) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-indigo-500 selection:text-white"
+      x-data="portalApp()"
+      @keydown.escape.window="closeDrawer(); isNotificationOpen = false; isProfileMenuOpen = false;">
+
+    <!-- 背景グロー装飾 -->
+    <div class="fixed top-0 left-1/3 w-[700px] h-[700px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="fixed bottom-0 right-1/4 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- ========================================== -->
+        <!-- 🧭 1. サイドバーメニュー (Sidebar) -->
+        <!-- ========================================== -->
+        <aside class="bg-slate-900/90 backdrop-blur-xl border-r border-slate-800/80 flex flex-col transition-all duration-300 z-30 shrink-0"
+               :class="isSidebarCollapsed ? 'w-20' : 'w-64'">
+            
+            <!-- ロゴエリア -->
+            <div class="h-16 flex items-center justify-between px-5 border-b border-slate-800/80">
+                <div class="flex items-center gap-3 overflow-hidden" x-show="!isSidebarCollapsed">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-sm text-white tracking-wide leading-none">NEXUS UI</div>
+                        <div class="text-[10px] text-indigo-400 font-mono">Enterprise v2.4</div>
+                    </div>
+                </div>
+                <div x-show="isSidebarCollapsed" class="mx-auto">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                </div>
+
+                <button @click="isSidebarCollapsed = !isSidebarCollapsed" 
+                        class="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors hidden md:block"
+                        :class="isSidebarCollapsed ? 'mx-auto mt-1' : ''">
+                    <i data-lucide="panel-left-close" class="w-4 h-4 transition-transform" :class="isSidebarCollapsed ? 'rotate-180' : ''"></i>
+                </button>
+            </div>
+
+            <!-- ナビゲーションメニューリスト -->
+            <nav class="p-3 space-y-1.5 flex-1 overflow-y-auto">
+                <div class="px-3 pt-2 pb-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-show="!isSidebarCollapsed">
+                    メイン機能
+                </div>
+
+                <!-- 1. ダッシュボード -->
+                <button @click="currentTab = 'dashboard'" 
+                        class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all group relative"
+                        :class="currentTab === 'dashboard' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i>
+                    <span x-show="!isSidebarCollapsed" class="truncate">ダッシュボード</span>
+                    <span x-show="isSidebarCollapsed" class="sr-only">ダッシュボード</span>
+                </button>
+
+                <!-- 2. ユーザー管理 (ドロワーデモ) -->
+                <button @click="currentTab = 'users'" 
+                        class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all group"
+                        :class="currentTab === 'users' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'">
+                    <div class="flex items-center gap-3 truncate">
+                        <i data-lucide="users" class="w-4 h-4 shrink-0"></i>
+                        <span x-show="!isSidebarCollapsed" class="truncate">ユーザー管理（ドロワー）</span>
+                    </div>
+                    <span x-show="!isSidebarCollapsed" class="px-2 py-0.5 text-[10px] rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30" :class="currentTab === 'users' ? 'bg-white/20 text-white border-transparent' : ''">4</span>
+                </button>
+
+                <!-- 3. UXパターン集 -->
+                <button @click="currentTab = 'patterns'" 
+                        class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all group"
+                        :class="currentTab === 'patterns' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'">
+                    <i data-lucide="layers" class="w-4 h-4 shrink-0"></i>
+                    <span x-show="!isSidebarCollapsed" class="truncate">実践UXパターン集</span>
+                </button>
+
+                <div class="px-3 pt-4 pb-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider" x-show="!isSidebarCollapsed">
+                    単体デモページ
+                </div>
+
+                <a href="bulk-actions.html" target="_blank" 
+                   class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all">
+                    <i data-lucide="check-square" class="w-4 h-4 shrink-0 text-emerald-400"></i>
+                    <span x-show="!isSidebarCollapsed" class="truncate">一括操作 (Bulk Actions)</span>
+                </a>
+                <a href="drower.html" target="_blank" 
+                   class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all">
+                    <i data-lucide="external-link" class="w-4 h-4 shrink-0 text-indigo-400"></i>
+                    <span x-show="!isSidebarCollapsed" class="truncate">drower.html を開く</span>
+                </a>
+                <a href="patterns.html" target="_blank" 
+                   class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all">
+                    <i data-lucide="external-link" class="w-4 h-4 shrink-0 text-purple-400"></i>
+                    <span x-show="!isSidebarCollapsed" class="truncate">patterns.html を開く</span>
+                </a>
+            </nav>
+
+            <!-- サイドバーフッター（ログインユーザー簡易表示） -->
+            <div class="p-3 border-t border-slate-800/80 bg-slate-900/50">
+                <div class="flex items-center gap-3 p-2 rounded-xl bg-slate-800/40 border border-slate-700/40" x-show="!isSidebarCollapsed">
+                    <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-xs">
+                        <span x-text="currentUser?.initials"></span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-xs font-bold text-slate-200 truncate" x-text="currentUser?.name"></div>
+                        <div class="text-[10px] text-emerald-400 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span x-text="currentUser?.role"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ========================================== -->
+        <!-- 💻 メインコンテンツエリア -->
+        <!-- ========================================== -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+            <!-- 2. トップヘッダー (Top Navbar) -->
+            <header class="h-16 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-xl px-6 flex items-center justify-between shrink-0 relative z-20">
+                
+                <!-- 検索バー -->
+                <div class="flex items-center gap-4 flex-1 max-w-md">
+                    <div class="relative w-full">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" placeholder="全社データベースを横断検索... (Ctrl + K)" 
+                               class="w-full pl-9 pr-4 py-2 bg-slate-950/60 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all">
+                    </div>
+                </div>
+
+                <!-- 右上ユーザー操作 ＆ 通知 -->
+                <div class="flex items-center gap-3">
+                    
+                    <!-- 通知ベル -->
+                    <div class="relative" @click.away="isNotificationOpen = false">
+                        <button @click="isNotificationOpen = !isNotificationOpen" 
+                                class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors relative">
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
+                            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-indigo-500"></span>
+                        </button>
+
+                        <!-- 通知ドロップダウン -->
+                        <div class="absolute right-0 mt-2 w-80 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-4 z-50"
+                             x-show="isNotificationOpen"
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                             style="display: none;">
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                                <h4 class="text-xs font-bold text-white">通知センター</h4>
+                                <span class="text-[10px] text-indigo-400 font-mono">未読 2 件</span>
+                            </div>
+                            <div class="space-y-2.5">
+                                <div class="p-2.5 rounded-xl bg-indigo-950/40 border border-indigo-800/30 flex gap-3">
+                                    <i data-lucide="info" class="w-4 h-4 text-indigo-400 shrink-0 mt-0.5"></i>
+                                    <div>
+                                        <div class="text-xs font-semibold text-slate-200">ユーザー情報が更新されました</div>
+                                        <div class="text-[10px] text-slate-400">山本 太郎 さんがドロワーから編集されました</div>
+                                    </div>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-slate-800/40 border border-slate-700/30 flex gap-3">
+                                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>
+                                    <div>
+                                        <div class="text-xs font-semibold text-slate-200">週次バックアップ完了</div>
+                                        <div class="text-[10px] text-slate-400">システムデータは正常に保存されました</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-6 w-px bg-slate-800 mx-1"></div>
+
+                    <!-- ユーザーアバター ＆ プロフィールメニュー -->
+                    <div class="relative" @click.away="isProfileMenuOpen = false">
+                        <button @click="isProfileMenuOpen = !isProfileMenuOpen" 
+                                class="flex items-center gap-3 p-1.5 rounded-xl hover:bg-slate-800/80 transition-all border border-transparent hover:border-slate-700/60">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white font-bold text-xs flex items-center justify-center ring-2 ring-indigo-500/20">
+                                <span x-text="currentUser?.initials"></span>
+                            </div>
+                            <div class="text-left hidden md:block">
+                                <div class="text-xs font-bold text-slate-200 leading-none mb-1" x-text="currentUser?.name"></div>
+                                <div class="text-[10px] text-slate-400 leading-none" x-text="currentUser?.email"></div>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 transition-transform" :class="isProfileMenuOpen ? 'rotate-180' : ''"></i>
+                        </button>
+
+                        <!-- プロフィールポップオーバーメニュー -->
+                        <div class="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-2 z-50"
+                             x-show="isProfileMenuOpen"
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                             style="display: none;">
+                            <div class="p-3 border-b border-slate-800 mb-1">
+                                <div class="text-xs font-bold text-white" x-text="currentUser?.name"></div>
+                                <div class="text-[10px] text-indigo-400 font-mono mt-0.5" x-text="currentUser?.role"></div>
+                            </div>
+                            <button @click="isProfileMenuOpen = false; currentTab = 'users'" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                                <i data-lucide="user" class="w-4 h-4 text-indigo-400"></i>
+                                <span>マイアカウント設定</span>
+                            </button>
+                            <button @click="switchRole()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 text-purple-400"></i>
+                                <span>権限切り替え (管理者 ↔ 閲覧者)</span>
+                            </button>
+                            <div class="my-1 border-t border-slate-800"></div>
+                            <button @click="logout()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-rose-400 hover:bg-rose-950/40 transition-colors font-semibold">
+                                <i data-lucide="log-out" class="w-4 h-4"></i>
+                                <span>ログアウト</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </header>
+
+
+            <!-- 3. タブコンテンツ切替エリア -->
+            <main class="flex-1 overflow-y-auto p-6 md:p-8">
+                
+                <!-- 【Tab 1: ダッシュボード概要】 -->
+                <div x-show="currentTab === 'dashboard'" class="space-y-8">
+                    <div>
+                        <div class="flex items-center gap-3 mb-1">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                System Status: Optimal
+                            </span>
+                            <span class="text-xs text-slate-400" x-text="'最終同期: ' + lastSyncTime"></span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white tracking-tight">エンタープライズ・ダッシュボード</h2>
+                    </div>
+
+                    <!-- メトリクスカード一覧 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 shadow-xl relative overflow-hidden group">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-xs font-medium text-slate-400">アクティブユーザー数</span>
+                                <div class="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                                    <i data-lucide="users" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-white font-mono mb-1">1,482 <span class="text-xs text-emerald-400 font-normal">↑ 12%</span></div>
+                            <div class="text-[11px] text-slate-500">前月比 +142 名増加</div>
+                        </div>
+
+                        <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 shadow-xl relative overflow-hidden group">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-xs font-medium text-slate-400">月間システム稼働率</span>
+                                <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                    <i data-lucide="activity" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-white font-mono mb-1">99.98 %</div>
+                            <div class="text-[11px] text-slate-500">ダウンタイム 0 分</div>
+                        </div>
+
+                        <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 shadow-xl relative overflow-hidden group">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-xs font-medium text-slate-400">処理リクエスト数</span>
+                                <div class="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                                    <i data-lucide="server" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-white font-mono mb-1">4.8 M</div>
+                            <div class="text-[11px] text-slate-500">応答時間 Avg: 42ms</div>
+                        </div>
+
+                        <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 shadow-xl relative overflow-hidden group">
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-xs font-medium text-slate-400">セキュリティレベル</span>
+                                <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                    <i data-lucide="lock" class="w-4 h-4"></i>
+                                </div>
+                            </div>
+                            <div class="text-2xl font-bold text-white font-mono mb-1">Grade A+</div>
+                            <div class="text-[11px] text-slate-500">2FA・SSO有効化済み</div>
+                        </div>
+                    </div>
+
+                    <!-- デモ紹介カード -->
+                    <div class="p-6 rounded-2xl bg-gradient-to-r from-indigo-950/60 via-slate-900/80 to-purple-950/60 border border-indigo-500/20 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="space-y-2">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                                <span>提案デモ用コンポーネント</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">要件定義・画面提案プロトタイプ</h3>
+                            <p class="text-xs text-slate-300 max-w-xl leading-relaxed">
+                                左メニューの「ユーザー管理」をクリックすると、右スライドドロワーのリアルタイム編集が試せます。「実践UXパターン集」では2ペイン表示や楽観的Undo削除を体感できます。
+                            </p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button @click="currentTab = 'users'" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2">
+                                <i data-lucide="panel-right" class="w-4 h-4"></i>
+                                <span>ドロワーデモを見る</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- 【Tab 2: ユーザー管理 (ドロワー機能内蔵)】 -->
+                <div x-show="currentTab === 'users'" class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white tracking-tight">ユーザー管理 ＆ ドロワー編集デモ</h2>
+                            <p class="text-xs text-slate-400">テーブル行をクリックするか「詳細・編集」で右スライドドロワーが開きます。</p>
+                        </div>
+                    </div>
+
+                    <!-- テーブル -->
+                    <div class="bg-slate-900/60 backdrop-blur-xl rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900/80 border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                        <th class="p-4 pl-6">ユーザー</th>
+                                        <th class="p-4">ID</th>
+                                        <th class="p-4">所属部署 / 役職</th>
+                                        <th class="p-4">ステータス</th>
+                                        <th class="p-4 pr-6 text-right">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm divide-y divide-slate-800/60">
+                                    <template x-for="user in users" :key="user.id">
+                                        <tr class="hover:bg-slate-800/40 transition-colors group cursor-pointer" @click="openDrawer(user)">
+                                            <td class="p-4 pl-6">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs ring-2 ring-indigo-500/20"
+                                                         :class="user.avatarBg">
+                                                        <span x-text="user.initials"></span>
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-medium text-slate-200 group-hover:text-indigo-400 transition-colors" x-text="user.name"></div>
+                                                        <div class="text-xs text-slate-500 font-mono" x-text="user.email"></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="p-4">
+                                                <span class="font-mono text-xs text-indigo-300 px-2 py-1 bg-indigo-950/50 border border-indigo-800/40 rounded-md" x-text="user.id"></span>
+                                            </td>
+                                            <td class="p-4">
+                                                <div class="text-slate-300" x-text="user.dept"></div>
+                                                <div class="text-xs text-slate-500" x-text="user.role"></div>
+                                            </td>
+                                            <td class="p-4">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                                                      :class="user.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'">
+                                                    <span class="w-1.5 h-1.5 rounded-full" :class="user.status === 'Active' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'"></span>
+                                                    <span x-text="user.status"></span>
+                                                </span>
+                                            </td>
+                                            <td class="p-4 pr-6 text-right" @click.stop>
+                                                <button @click="openDrawer(user)" 
+                                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white border border-indigo-500/20 text-xs font-semibold transition-all">
+                                                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                                                    <span>編集</span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- 【Tab 3: UXパターン集】 -->
+                <div x-show="currentTab === 'patterns'" class="space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white tracking-tight">実践UXパターン集</h2>
+                        <p class="text-xs text-slate-400">画面遷移コストを減らす2ペイン、セグメント、Undo確認不要削除のデモです。</p>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 shadow-xl flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-bold text-white mb-1">スタンドアロンパターン集ページ</div>
+                            <div class="text-xs text-slate-400">`patterns.html` で実装されているすべての最新コンポーネントを含んでいます。</div>
+                        </div>
+                        <a href="patterns.html" target="_blank" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-purple-600/25 flex items-center gap-2">
+                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                            <span>単体デモを開く</span>
+                        </a>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- 🛏️ 右スライドドロワー (Drawer Component) -->
+    <!-- ========================================== -->
+    <div class="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-40"
+         x-show="isDrawerOpen"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="closeDrawer()"
+         style="display: none;"></div>
+
+    <aside class="fixed inset-y-0 right-0 w-full max-w-lg bg-slate-900 border-l border-slate-800 shadow-2xl z-50 flex flex-col"
+           x-show="isDrawerOpen"
+           x-transition:enter="transition ease-out duration-300 transform"
+           x-transition:enter-start="translate-x-full"
+           x-transition:enter-end="translate-x-0"
+           x-transition:leave="transition ease-in duration-200 transform"
+           x-transition:leave-start="translate-x-0"
+           x-transition:leave-end="translate-x-full"
+           style="display: none;">
+
+        <div class="flex items-center justify-between p-6 border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                    <i data-lucide="user-cog" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h2 class="text-base font-bold text-white">ユーザー詳細・設定</h2>
+                    <p class="text-xs text-slate-400">リアルタイムにデータを編集・保存できます</p>
+                </div>
+            </div>
+            <button @click="closeDrawer()" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <template x-if="selectedUser">
+            <div class="p-6 space-y-6 flex-1 overflow-y-auto">
+                <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm ring-2 ring-indigo-500/30"
+                         :class="selectedUser.avatarBg">
+                        <span x-text="selectedUser.initials"></span>
+                    </div>
+                    <div>
+                        <div class="font-bold text-white text-base" x-text="selectedUser.name"></div>
+                        <div class="text-xs font-mono text-indigo-400" x-text="selectedUser.id"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">氏名</label>
+                        <input type="text" x-model="selectedUser.name"
+                               class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">所属部署</label>
+                            <input type="text" x-model="selectedUser.dept"
+                                   class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">役職</label>
+                            <input type="text" x-model="selectedUser.role"
+                                   class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">メールアドレス</label>
+                        <input type="email" x-model="selectedUser.email"
+                               class="w-full px-3.5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono">
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <div class="p-6 border-t border-slate-800 bg-slate-900/80 backdrop-blur-sm flex items-center gap-3">
+            <button @click="saveUser()" 
+                    class="flex-1 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2">
+                <i data-lucide="check" class="w-4 h-4"></i>
+                <span>変更内容を保存</span>
+            </button>
+            <button @click="closeDrawer()" 
+                    class="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-semibold text-sm transition-all">
+                キャンセル
+            </button>
+        </div>
+    </aside>
+
+
+    <!-- ========================================== -->
+    <!-- 🔑 ログイン / ログアウト 認証モーダル -->
+    <!-- ========================================== -->
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+         x-show="!isLoggedIn"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         style="display: none;">
+        
+        <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl p-8 relative overflow-hidden">
+            <!-- カード背景の装飾 -->
+            <div class="absolute -top-12 -right-12 w-40 h-40 bg-indigo-600/20 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="text-center mb-8">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 mx-auto mb-4 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-1">NEXUS Enterprise にログイン</h3>
+                <p class="text-xs text-slate-400">要件定義プロトタイプ用認証デモ画面</p>
+            </div>
+
+            <!-- ワンタップで試せるデモ用クイックログイン -->
+            <div class="space-y-3 mb-6">
+                <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-center">デモ用アカウントで簡単ログイン</div>
+                
+                <button @click="loginAs('admin')" 
+                        class="w-full p-3.5 bg-slate-800 hover:bg-slate-700/80 border border-slate-700 rounded-2xl text-left flex items-center justify-between group transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xs flex items-center justify-center border border-emerald-500/30">
+                            DT
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-white group-hover:text-indigo-400 transition-colors">デモ 太郎 (管理者)</div>
+                            <div class="text-[10px] text-slate-400 font-mono">demo.taro@nexus-demo.internal</div>
+                        </div>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all"></i>
+                </button>
+
+                <button @click="loginAs('user')" 
+                        class="w-full p-3.5 bg-slate-800 hover:bg-slate-700/80 border border-slate-700 rounded-2xl text-left flex items-center justify-between group transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xs flex items-center justify-center border border-purple-500/30">
+                            SM
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-white group-hover:text-indigo-400 transition-colors">サンプル 美咲 (一般ユーザー)</div>
+                            <div class="text-[10px] text-slate-400 font-mono">sample.misaki@nexus-demo.internal</div>
+                        </div>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-slate-400 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all"></i>
+                </button>
+            </div>
+
+            <div class="relative flex py-2 items-center">
+                <div class="flex-grow border-t border-slate-800"></div>
+                <span class="flex-shrink mx-4 text-[10px] text-slate-500 uppercase font-mono">または通常のフォーム</span>
+                <div class="flex-grow border-t border-slate-800"></div>
+            </div>
+
+            <!-- 通常ログインフォームダミー -->
+            <form @submit.prevent="loginAs('admin')" class="space-y-4 mt-2">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">メールアドレス</label>
+                    <input type="email" value="admin@nexus.example.com" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">パスワード</label>
+                    <input type="password" value="••••••••••••" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/30 transition-all">
+                    ログイン
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- 4. トースト通知 -->
+    <div class="fixed bottom-6 right-6 z-50"
+         x-show="showToast"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 translate-y-4"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 translate-y-4"
+         style="display: none;">
+        <div class="flex items-center gap-3 px-4 py-3 bg-slate-900 border border-indigo-500/40 text-slate-100 rounded-2xl shadow-2xl">
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-indigo-400"></i>
+            <span class="text-xs font-semibold" x-text="toastMessage"></span>
+        </div>
+    </div>
+
+
+    <!-- Script Block -->
+    <script>
+        function portalApp() {
+            return {
+                isLoggedIn: true,
+                isSidebarCollapsed: false,
+                isNotificationOpen: false,
+                isProfileMenuOpen: false,
+                isDrawerOpen: false,
+                currentTab: 'dashboard',
+                selectedUser: { id: '', name: '', dept: '', role: '', email: '', status: 'Active', avatarBg: '' },
+                showToast: false,
+                toastMessage: '',
+                lastSyncTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+
+                currentUser: {
+                    name: 'デモ 太郎',
+                    initials: 'DT',
+                    email: 'demo.taro@nexus-demo.internal',
+                    role: 'システム管理者 (Admin)'
+                },
+
+                users: [
+                    { id: 'USR-001', name: 'デモ 太郎', initials: 'DT', dept: 'プラットフォーム開発部', role: 'シニアアーキテクト', email: 'demo.taro@nexus-demo.internal', status: 'Active', avatarBg: 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30' },
+                    { id: 'USR-002', name: 'サンプル 美咲', initials: 'SM', dept: 'DXプロモーション課', role: 'プロダクトマネージャー', email: 'sample.misaki@nexus-demo.internal', status: 'Active', avatarBg: 'bg-purple-600/20 text-purple-400 border-purple-500/30' },
+                    { id: 'USR-003', name: 'テスト 健太', initials: 'TK', dept: 'UI/UXデザインスタジオ', role: 'リードデザイナー', email: 'test.kenta@nexus-demo.internal', status: 'Away', avatarBg: 'bg-emerald-600/20 text-emerald-400 border-emerald-500/30' },
+                    { id: 'USR-004', name: 'モック 葵', initials: 'MA', dept: 'データアナリティクスG', role: 'グロースアナリスト', email: 'mock.aoi@nexus-demo.internal', status: 'Active', avatarBg: 'bg-amber-600/20 text-amber-400 border-amber-500/30' },
+                ],
+
+                openDrawer(user) {
+                    this.selectedUser = JSON.parse(JSON.stringify(user));
+                    this.isDrawerOpen = true;
+                },
+                closeDrawer() {
+                    this.isDrawerOpen = false;
+                },
+                saveUser() {
+                    if (!this.selectedUser) return;
+                    const idx = this.users.findIndex(u => u.id === this.selectedUser.id);
+                    if (idx !== -1) {
+                        this.users[idx] = JSON.parse(JSON.stringify(this.selectedUser));
+                    }
+                    this.closeDrawer();
+                    this.triggerToast(`${this.selectedUser.name} さんの情報を保存・同期しました`);
+                },
+                triggerToast(msg) {
+                    this.toastMessage = msg;
+                    this.showToast = true;
+                    setTimeout(() => { this.showToast = false; }, 3000);
+                },
+
+                // 認証デモ関数
+                logout() {
+                    this.isProfileMenuOpen = false;
+                    this.isLoggedIn = false;
+                },
+                loginAs(type) {
+                    if (type === 'admin') {
+                        this.currentUser = {
+                            name: 'デモ 太郎',
+                            initials: 'DT',
+                            email: 'demo.taro@nexus-demo.internal',
+                            role: 'システム管理者 (Admin)'
+                        };
+                    } else {
+                        this.currentUser = {
+                            name: 'サンプル 美咲',
+                            initials: 'SM',
+                            email: 'sample.misaki@nexus-demo.internal',
+                            role: '一般ユーザー (Viewer)'
+                        };
+                    }
+                    this.isLoggedIn = true;
+                    this.triggerToast(`${this.currentUser.name} としてログインしました`);
+                },
+                switchRole() {
+                    if (this.currentUser.initials === 'DT') {
+                        this.loginAs('user');
+                    } else {
+                        this.loginAs('admin');
+                    }
+                    this.isProfileMenuOpen = false;
+                },
+
+                init() {
+                    this.$nextTick(() => { lucide.createIcons(); });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
