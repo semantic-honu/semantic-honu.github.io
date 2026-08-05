@@ -1,328 +1,509 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="scroll-smooth">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ポートフォリオ</title>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>semantic-honu | Portfolio</title>
+  <!-- Console warning filter for prototype demo -->
+  <script>
+    const _origWarn = console.warn;
+    console.warn = function (...args) {
+      if (args[0] && typeof args[0] === 'string') {
+        if (args[0].includes('cdn.tailwindcss.com') || args[0].includes('file:')) return;
+      }
+      _origWarn.apply(console, args);
+    };
+  </script>
+  <!-- Tailwind CSS (Play CDN v3.4.16) -->
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.474.0/dist/umd/lucide.min.js"></script>
+  <!-- FontAwesome (Icons) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <style>
-    :root {
-      --primary-color: #4a90e2;
-      --secondary-color: #50e3c2;
-      --text-color: #333;
-      --bg-color: #f8f9fa;
-      --card-bg: #ffffff;
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans JP"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
     }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      font-family: 'Noto Sans JP', sans-serif;
-      line-height: 1.8;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-    }
-
-    .hero {
-      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-      color: white;
-      padding: 2rem 2rem;
-      text-align: center;
-      margin-bottom: 4rem;
-    }
-
-    .hero h1 {
-      font-size: 3.5rem;
-    }
-
-    .section-title {
-      text-align: center;
-      margin-bottom: 3rem;
-      font-weight: 700;
-    }
-
-    .project-card {
-      background-color: var(--card-bg);
-      border: none;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .project-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-    }
-    
-    .card-body {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .card-title {
-      color: var(--primary-color);
-    }
-    
-    .card-text {
-      flex-grow: 1;
-    }
-
-    .tech-tags {
-      padding: 0;
-      margin: 1rem 0;
-      list-style: none;
-    }
-
-    .tech-tags .tag {
-      display: inline-block;
-      background-color: #e9ecef;
-      color: #495057;
-      padding: 0.25rem 0.75rem;
-      border-radius: 15px;
-      font-size: 0.8rem;
-      margin: 0.2rem;
-    }
-
-    .btn-custom {
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 0.6rem 1.2rem;
-      transition: background-color 0.3s ease;
-      font-weight: 500;
-    }
-
-    .btn-custom:hover {
-      background-color: #357abd;
-      color: white;
-    }
-    
-    .btn-github {
-        color: #333;
-        background-color: transparent;
-    }
-    
-    .btn-github:hover {
-        color: var(--primary-color);
-    }
-
-  </style>
+  </script>
 </head>
-<body>
 
-  <header class="hero">
-    <div class="container">
-      <h1 class="display-4">Portfolio</h1>
-      <p class="lead">semantic-honu</p>
+<body
+  class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-indigo-500 selection:text-white min-h-screen relative overflow-x-hidden">
+
+  <!-- 背景オーロラグロー装飾 -->
+  <div
+    class="fixed top-0 left-1/4 w-[800px] h-[800px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse">
+  </div>
+  <div
+    class="fixed bottom-0 right-1/4 w-[700px] h-[700px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none -z-10">
+  </div>
+  <div
+    class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-3xl pointer-events-none -z-10">
+  </div>
+
+  <!-- グローバルナビゲーション -->
+  <nav class="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 group">
+        <div
+          class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/25 group-hover:scale-105 transition-transform">
+          SH
+        </div>
+        <span
+          class="font-bold text-base tracking-tight text-white group-hover:text-indigo-400 transition-colors">semantic-honu</span>
+      </a>
+
+      <div class="flex items-center gap-6 text-xs font-semibold text-slate-300">
+        <a href="#about" class="hover:text-indigo-400 transition-colors">About</a>
+        <a href="#projects" class="hover:text-indigo-400 transition-colors">Projects</a>
+        <a href="https://github.com/semantic-honu" target="_blank"
+          class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+          <i class="fab fa-github text-base"></i>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+
+  <!-- ヒーローセクション -->
+  <header class="max-w-6xl mx-auto px-6 pt-16 pb-20 md:pt-24 md:pb-28 relative">
+    <div class="max-w-3xl space-y-6">
+      <!-- ステータスバッジ -->
+      <div
+        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 shadow-xl">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span class="w-2 h-2 rounded-full bg-emerald-400 -ml-4"></span>
+        <span>Software Engineer & UI Developer</span>
+      </div>
+
+      <!-- メインキャッチコピー -->
+      <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight leading-tight">
+        Crafting Scalable Code & <br>
+        <span class="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          Modern User Experiences
+        </span>
+      </h1>
+
+      <p class="text-slate-400 text-base md:text-lg leading-relaxed max-w-2xl">
+        Webアプリケーション開発を中心に、バックエンドの堅牢な設計からモダンで洗練されたフロントエンド・UIデザインまで一貫して手掛けています。
+      </p>
+
+      <!-- クイックボタン -->
+      <div class="flex flex-wrap items-center gap-4 pt-2">
+        <a href="#projects"
+          class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-indigo-600/30 flex items-center gap-2 group">
+          <span>プロジェクトを見る</span>
+          <i data-lucide="arrow-down" class="w-4 h-4 group-hover:translate-y-0.5 transition-transform"></i>
+        </a>
+        <a href="https://github.com/semantic-honu" target="_blank"
+          class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 rounded-xl font-bold text-xs transition-all flex items-center gap-2">
+          <i class="fab fa-github text-sm"></i>
+          <span>GitHub プロフィール</span>
+        </a>
+      </div>
     </div>
   </header>
 
-  <main class="container">
-    <section id="about" class="my-5 text-center">
-      <h2 class="section-title">About Me</h2>
-      <p class="lead">
-        ソフトウェアエンジニア。<br>Webアプリケーション開発を主に、バックエンドからフロントエンドまで幅広く携わっています。
-        新しい技術を学ぶことや、ユーザー体験、品質の向上に興味があります。
-      </p>
-    </section>
 
-    <section id="projects">
-      <h2 class="section-title">Projects</h2>
-      <div class="row g-4">
-        <!-- モダン業務UI コンポーネント ＆ パターン集 -->
-        <div class="col-lg-12 mb-4">
-          <div class="card project-card border-primary border-2 shadow-lg">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <h3 class="card-title text-primary font-weight-bold">モダン業務UI コンポーネント ＆ パターン集</h3>
-                <span class="badge bg-danger">New / Featured</span>
-              </div>
-              <p class="card-text">要件定義や画面提案で活用できる、洗練されたモダン業務システムUIプロトタイプ。スライドドロワー編集、2ペインビュー、Undo機能付き楽観的削除、フローティング一括操作 (Bulk Actions)、ログイン/ログアウト認証デモを完備した統合デモポータルです。</p>
-              <div>
-                <ul class="tech-tags">
-                  <li class="tag">HTML5 / JavaScript</li>
-                  <li class="tag">Tailwind CSS</li>
-                  <li class="tag">Alpine.js</li>
-                  <li class="tag">Lucide Icons</li>
-                  <li class="tag">UX Design Patterns</li>
-                </ul>
-              </div>
-              <div class="mt-auto pt-2 flex-wrap gap-2">
-                <a href="./web-animation-sample/index.html" class="btn btn-custom font-weight-bold"><i class="fas fa-desktop me-1"></i> 統合ポータルデモを開く</a>
-                <a href="./web-animation-sample/bulk-actions.html" class="btn btn-outline-primary ms-2"><i class="fas fa-tasks me-1"></i> 一括操作 (Bulk Actions) デモ</a>
-              </div>
-            </div>
+  <!-- メインコンテンツ -->
+  <main class="max-w-6xl mx-auto px-6 space-y-24 pb-24">
+
+    <!-- ========================================== -->
+    <!-- 👤 About Me / Skills セクション -->
+    <!-- ========================================== -->
+    <section id="about"
+      class="p-8 md:p-10 rounded-3xl bg-slate-900/60 backdrop-blur-xl border border-slate-800 shadow-2xl relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="max-w-3xl space-y-6">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+            <i data-lucide="user" class="w-5 h-5"></i>
           </div>
+          <h2 class="text-xl font-bold text-white">About Me</h2>
         </div>
 
-        <!-- Site-Diff-Evidence-Collector -->
-        <div class="col-lg-12 mb-4">
-          <div class="card project-card border-primary border-2 shadow-lg">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <h3 class="card-title text-primary font-weight-bold">Site-Diff-Evidence-Collector</h3>
-                <span class="badge bg-danger">New / Featured</span>
-              </div>
-              <p class="card-text">バージョンアップ前後や、旧環境・新環境のWebサイトの差異を確認するためのエビデンス取得・比較ツールです。 Playwrightを使用して、画面上の全テキストを抽出し、差分をHTMLレポートとして出力します。</p>
-              <div>
-                <ul class="tech-tags">
-                  <li class="tag">Playwright</li>
-                  <li class="tag">JavaScript</li>
-                  <li class="tag">E2Eテスト自動化</li>
-                </ul>
-              </div>
-              <div class="mt-auto">
-                <a href="https://github.com/semantic-honu/Site-Diff-Evidence-Collector" class="btn btn-github"><i class="fab fa-github"></i> GitHub</a>
-              </div>
-            </div>
-          </div>
-        </div>
+        <p class="text-slate-300 text-sm md:text-base leading-relaxed">
+          ソフトウェアエンジニア。<br>
+          Webアプリケーション開発を軸に、Spring Boot や Python によるバックエンド構築、React / Tailwind CSS / Alpine.js
+          による最新のフロントエンドUI実装まで幅広く対応。ユーザー体験（UX）の向上、レスポンシブ対応、および保守性の高いクリーンコードの実現に強い関心を持っています。
+        </p>
 
-        <!-- GridHandsOn -->
-        <div class="col-lg-6 mb-4">
-          <div class="card project-card">
-            <div class="card-body">
-              <h3 class="card-title">GridHandsOn</h3>
-              <p class="card-text">このプロジェクトは、バックエンド、フロントエンド、データベースが Docker コンテナとして連携して動作します。
-MUI X DataGridのような高機能なデータグリッドの実装方法を学ぶことを目的としています。</p>
-              <div>
-                <ul class="tech-tags">
-                  <li class="tag">Spring Boot</li>
-                  <li class="tag">React</li>
-                  <li class="tag">Docker</li>
-                  <li class="tag">PostgreSQL</li>
-                </ul>
-              </div>
-              <div class="mt-auto">
-                <a href="https://github.com/semantic-honu/grid-hands-on" class="btn btn-github"><i class="fab fa-github"></i> GitHub</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- プロジェクト: TIL -->
-        <div class="col-lg-6 mb-4">
-          <div class="card project-card">
-            <div class="card-body">
-              <h3 class="card-title">Today I Learned (TIL)</h3>
-              <p class="card-text">日々のプログラミング学習で得た知識やTIPSを記録しているリポジトリです。Web開発技術やツール、設計論、情報セキュリティについてまとめています。知識の定着とアウトプットの習慣化が目的です。</p>
-              <div>
-                <ul class="tech-tags">
-                  <li class="tag">Markdown</li>
-                  <li class="tag">Git</li>
-                  <li class="tag">GitHub</li>
-                </ul>
-              </div>
-              <div class="mt-auto">
-                <a href="https://github.com/semantic-honu/today-i-learned" class="btn btn-github"><i class="fab fa-github"></i> GitHub</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- プロジェクト: MyTodoApp -->
-        <div class="col-lg-6 mb-4">
-          <div class="card project-card">
-            <div class="card-body">
-              <h3 class="card-title">MyTodoApp</h3>
-              <p class="card-text">ユーザー認証からタスク管理（CRUD）まで、基本的な機能を網羅したTODOアプリです。モダンで直感的なUI/UXの実現を目標に、PCからスマホまで対応するレスポンシブデザインを採用しました。</p>
-              <p class="card-text">このアプリは、現在Renderにて公開中です。サーバーの起動に1分ほどかかりますことをご承知おきください。</p>
-              <div>
-                <ul class="tech-tags">
-                  <li class="tag">Spring Boot</li>
-                  <li class="tag">Bootstrap</li>
-                  <li class="tag">Thymeleaf</li>
-                  <li class="tag">H2 Database</li>
-                </ul>
-              </div>
-              <div class="mt-auto">
-                <a href="https://my-todo-app-ibd9.onrender.com/login" class="btn btn-custom">アプリを見る</a>
-                <a href="https://github.com/semantic-honu/my-todo-app" class="btn btn-github ms-2"><i class="fab fa-github"></i> GitHub</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- プロジェクト: RagChatbot -->
-        <div class="col-lg-6 mb-4">
-          <div class="card project-card">
-            <div class="card-body">
-              <h3 class="card-title">RagChatbot</h3>
-              <p class="card-text">ローカルのPDFドキュメントを読み込み、質問に答えるAIチャットボットです。低スペックな環境でも動作するように、処理速度と精度のバランス調整に挑戦しました。</p>
-              <div>
-                <ul class="tech-tags">
-                  <li class="tag">Python</li>
-                  <li class="tag">Ollama</li>
-                  <li class="tag">LangChain</li>
-                  <li class="tag">ChromaDB</li>
-                </ul>
-              </div>
-              <div class="mt-auto">
-                <a href="https://github.com/semantic-honu/rag-chatbot" class="btn btn-github ms-2"><i class="fab fa-github"></i> GitHub</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- プロジェクト: ExifReaderApp -->
-        <div class="col-lg-6 mb-4">
-          <div class="card project-card">
-            <div class="card-body">
-              <h3 class="card-title">ExifReaderApp</h3>
-              <p class="card-text">スマートフォンの画像からExif情報を読み取り、表示・削除ができるAndroidアプリケーションです。画像のメタ情報をどのように取得し、操作するかを学ぶことを通じて、Android開発の理解を深めました。</p>
-              <div>
-                <ul class="tech-tags">
-                  <li class="tag">Kotlin</li>
-                  <li class="tag">Android</li>
-                </ul>
-              </div>
-              <div class="mt-auto">
-                <a href="https://github.com/semantic-honu/ExifReaderApp" class="btn btn-github ms-2"><i class="fab fa-github"></i> GitHub</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- プロジェクト: Zenn -->
-        <div class="col-lg-6 mb-4">
-          <div class="card project-card">
-            <div class="card-body">
-              <h3 class="card-title">Zenn</h3>
-              <p class="card-text">技術的な学びやTipsをZennで発信しています。</p>
-              <div>
-                <ul class="tech-tags">
-                  <li class="tag">Markdown</li>
-                </ul>
-              </div>
-              <div class="mt-auto">
-                <a href="https://zenn.dev/sem_honu" class="btn btn-custom">記事を見る</a>
-              </div>
-            </div>
+        <!-- スキルタグ一覧 -->
+        <div class="pt-2">
+          <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">使用技術・ツールスタック</div>
+          <div class="flex flex-wrap gap-2">
+            <span
+              class="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-medium text-slate-200 flex items-center gap-1.5">
+              <i class="fab fa-java text-amber-400"></i> Spring Boot
+            </span>
+            <span
+              class="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-medium text-slate-200 flex items-center gap-1.5">
+              <i class="fab fa-react text-sky-400"></i> React
+            </span>
+            <span
+              class="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-medium text-slate-200 flex items-center gap-1.5">
+              <i class="fab fa-python text-blue-400"></i> Python / LangChain
+            </span>
+            <span
+              class="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-medium text-slate-200 flex items-center gap-1.5">
+              <i class="fab fa-docker text-blue-500"></i> Docker
+            </span>
+            <span
+              class="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-medium text-slate-200 flex items-center gap-1.5">
+              <i class="fab fa-android text-emerald-400"></i> Kotlin / Android
+            </span>
+            <span
+              class="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/80 text-xs font-medium text-slate-200 flex items-center gap-1.5">
+              <i data-lucide="palette" class="w-3.5 h-3.5 text-purple-400"></i> Tailwind CSS / Alpine.js
+            </span>
           </div>
         </div>
       </div>
     </section>
+
+
+    <!-- ========================================== -->
+    <!-- 🚀 Projects セクション -->
+    <!-- ========================================== -->
+    <section id="projects" class="space-y-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-3 mb-1">
+            <div class="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+              <i data-lucide="folder-git-2" class="w-5 h-5"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white tracking-tight">Projects & Showcases</h2>
+          </div>
+          <p class="text-xs text-slate-400">これまでに開発・公開した主なプロジェクトとUIサンプルです</p>
+        </div>
+      </div>
+
+      <!-- フィーチャード・注目プロジェクト (モダン業務UI サンプル) -->
+      <div
+        class="p-8 rounded-3xl bg-gradient-to-r from-indigo-950/70 via-slate-900/90 to-purple-950/70 border border-indigo-500/30 shadow-2xl relative overflow-hidden group hover:border-indigo-500/50 transition-all duration-300">
+        <div class="absolute -top-10 -right-10 w-72 h-72 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none">
+        </div>
+
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 relative z-10">
+          <div class="space-y-4 max-w-2xl">
+            <div class="flex items-center gap-3">
+              <span
+                class="px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-500 text-white shadow-md shadow-indigo-500/30">
+                Featured Demo
+              </span>
+              <span class="text-xs font-mono text-indigo-400">Enterprise Web App Showcase</span>
+            </div>
+
+            <h3 class="text-2xl font-bold text-white group-hover:text-indigo-300 transition-colors">
+              モダン業務UI コンポーネント ＆ 実践パターン集
+            </h3>
+
+            <p class="text-slate-300 text-xs md:text-sm leading-relaxed">
+              要件定義や画面提案で活用できる、洗練されたエンタープライズWeb UIプロトタイプ。右スライドドロワー編集、2ペイン構成、Undo機能付き楽観的削除、フローティング一括操作 (Bulk
+              Actions)、ログイン/ログアウト認証デモを備えた統合管理システムです。
+            </p>
+
+            <!-- タグ -->
+            <div class="flex flex-wrap gap-2 pt-1 font-mono text-[11px]">
+              <span class="px-2.5 py-1 rounded-lg bg-indigo-950/80 border border-indigo-800/60 text-indigo-300">HTML5 /
+                JS</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300">Tailwind CSS
+                3.4</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300">Alpine.js</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300">Lucide
+                Icons</span>
+              <span class="px-2.5 py-1 rounded-lg bg-purple-950/80 border border-purple-800/60 text-purple-300">UX
+                Design Patterns</span>
+            </div>
+          </div>
+
+          <!-- デモ操作ボタン -->
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
+            <a href="./web-animation-sample/index.html"
+              class="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+              <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+              <span>統合ポータルデモを開く</span>
+            </a>
+            <a href="./web-animation-sample/bulk-actions.html"
+              class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-2">
+              <i data-lucide="check-square" class="w-4 h-4 text-emerald-400"></i>
+              <span>一括操作 (Bulk Actions)</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+
+      <div
+        class="p-8 rounded-3xl bg-gradient-to-r from-indigo-950/70 via-slate-900/90 to-purple-950/70 border border-indigo-500/30 shadow-2xl relative overflow-hidden group hover:border-indigo-500/50 transition-all duration-300">
+        <div class="absolute -top-10 -right-10 w-72 h-72 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none">
+        </div>
+
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8 relative z-10">
+          <div class="space-y-4 max-w-2xl">
+            <div class="flex items-center gap-3">
+              <span
+                class="px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-500 text-white shadow-md shadow-indigo-500/30">
+                Featured
+              </span>
+            </div>
+            <div class="flex justify-between items-start">
+              <h3 class="text-2xl font-bold text-white group-hover:text-indigo-300 transition-colors">
+                Site Diff Evidence Collector
+              </h3>
+              <span class="p-2 rounded-xl bg-slate-800 text-slate-400 group-hover:text-white transition-colors">
+                <i class="fab fa-github text-sm"></i>
+              </span>
+            </div>
+
+            <p class="text-slate-300 text-xs md:text-sm leading-relaxed">
+              バージョンアップ前後や、旧環境・新環境のWebサイトの差異を確認するためのエビデンス取得・比較ツールです。 Playwrightを使用して、画面上の全テキストを抽出し、差分をHTMLレポートとして出力します。
+            </p>
+
+            <!-- タグ -->
+            <div class="flex flex-wrap gap-2 pt-1 font-mono text-[11px]">
+              <span
+                class="px-2.5 py-1 rounded-lg bg-indigo-950/80 border border-indigo-800/60 text-indigo-300">JavaScript</span>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300">Playwright</span>
+              <span
+                class="px-2.5 py-1 rounded-lg bg-purple-950/80 border border-purple-800/60 text-purple-300">E2Eテスト自動化</span>
+            </div>
+          </div>
+
+          <!-- デモ操作ボタン -->
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
+            <a href="https://github.com/semantic-honu/Site-Diff-Evidence-Collector" target="_blank"
+              class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+              <span>GitHubで見る</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- プロジェクトグリッド (2カラム) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- 1. GridHandsOn -->
+        <div
+          class="p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-slate-800 hover:border-slate-700 shadow-xl flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300">
+          <div class="space-y-3">
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">GridHandsOn</h3>
+              <span class="p-2 rounded-xl bg-slate-800 text-slate-400 group-hover:text-white transition-colors">
+                <i class="fab fa-github text-sm"></i>
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              バックエンド、フロントエンド、データベースが Docker コンテナとして連携動作。MUI X DataGrid のような高機能データグリッドの実装方法を学習・検証。
+            </p>
+          </div>
+
+          <div class="pt-6 space-y-4">
+            <div class="flex flex-wrap gap-1.5 font-mono text-[10px]">
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Spring Boot</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">React</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Docker</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">PostgreSQL</span>
+            </div>
+            <a href="https://github.com/semantic-honu/grid-hands-on" target="_blank"
+              class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+              <span>GitHubで見る</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- 2. Today I Learned (TIL) -->
+        <div
+          class="p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-slate-800 hover:border-slate-700 shadow-xl flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300">
+          <div class="space-y-3">
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">Today I Learned
+                (TIL)</h3>
+              <span class="p-2 rounded-xl bg-slate-800 text-slate-400 group-hover:text-white transition-colors">
+                <i class="fab fa-github text-sm"></i>
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              日々の学習で得た知識やTIPSを記録。Web開発技術、設計論、セキュリティ、開発ツール等のナレッジを集約・アウトプット。
+            </p>
+          </div>
+
+          <div class="pt-6 space-y-4">
+            <div class="flex flex-wrap gap-1.5 font-mono text-[10px]">
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Markdown</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Git / GitHub</span>
+            </div>
+            <a href="https://github.com/semantic-honu/today-i-learned" target="_blank"
+              class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+              <span>GitHubで見る</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- 3. MyTodoApp -->
+        <div
+          class="p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-slate-800 hover:border-slate-700 shadow-xl flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300">
+          <div class="space-y-3">
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">MyTodoApp</h3>
+              <span class="p-2 rounded-xl bg-slate-800 text-slate-400 group-hover:text-white transition-colors">
+                <i class="fas fa-rocket text-sm"></i>
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              ユーザー認証からCRUDタスク管理まで網羅。レスポンシブUI/UXを採用。（Renderにて公開中）
+            </p>
+          </div>
+
+          <div class="pt-6 space-y-4">
+            <div class="flex flex-wrap gap-1.5 font-mono text-[10px]">
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Spring Boot</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Bootstrap</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Thymeleaf</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <a href="https://my-todo-app-ibd9.onrender.com/login" target="_blank"
+                class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors">
+                <span>アプリを見る</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </a>
+              <a href="https://github.com/semantic-honu/my-todo-app" target="_blank"
+                class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors">
+                <span>GitHub</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. RagChatbot -->
+        <div
+          class="p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-slate-800 hover:border-slate-700 shadow-xl flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300">
+          <div class="space-y-3">
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">RagChatbot</h3>
+              <span class="p-2 rounded-xl bg-slate-800 text-slate-400 group-hover:text-white transition-colors">
+                <i class="fab fa-python text-sm"></i>
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              ローカルPDFを読み込み、質問に回答するAIチャットボット。LangChainとOllamaによる軽量環境での高精度検索を実現。
+            </p>
+          </div>
+
+          <div class="pt-6 space-y-4">
+            <div class="flex flex-wrap gap-1.5 font-mono text-[10px]">
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Python</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Ollama</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">LangChain</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">ChromaDB</span>
+            </div>
+            <a href="https://github.com/semantic-honu/rag-chatbot" target="_blank"
+              class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+              <span>GitHubで見る</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- 5. ExifReaderApp -->
+        <div
+          class="p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-slate-800 hover:border-slate-700 shadow-xl flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300">
+          <div class="space-y-3">
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">ExifReaderApp</h3>
+              <span class="p-2 rounded-xl bg-slate-800 text-slate-400 group-hover:text-white transition-colors">
+                <i class="fab fa-android text-sm"></i>
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              写真画像からExifメタ情報を抽出・編集・削除するAndroidアプリ。
+            </p>
+          </div>
+
+          <div class="pt-6 space-y-4">
+            <div class="flex flex-wrap gap-1.5 font-mono text-[10px]">
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Kotlin</span>
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Android</span>
+            </div>
+            <a href="https://github.com/semantic-honu/ExifReaderApp" target="_blank"
+              class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:text-indigo-300 transition-colors">
+              <span>GitHubで見る</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- 6. Zenn Articles -->
+        <div
+          class="p-6 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-slate-800 hover:border-slate-700 shadow-xl flex flex-col justify-between group hover:-translate-y-1 transition-all duration-300">
+          <div class="space-y-3">
+            <div class="flex justify-between items-start">
+              <h3 class="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">Zenn 技術記事</h3>
+              <span class="p-2 rounded-xl bg-slate-800 text-slate-400 group-hover:text-white transition-colors">
+                <i class="fas fa-book-open text-sm"></i>
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              技術的な学びや開発ナレッジ・TIPSをZennにて発信中。
+            </p>
+          </div>
+
+          <div class="pt-6 space-y-4">
+            <div class="flex flex-wrap gap-1.5 font-mono text-[10px]">
+              <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">Technical Articles</span>
+            </div>
+            <a href="https://zenn.dev/sem_honu" target="_blank"
+              class="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-400 hover:text-purple-300 transition-colors">
+              <span>記事一覧を見る</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </section>
   </main>
 
-  <footer class="text-center py-4 mt-5">
-    <p class="text-muted">&copy; 2025 semantic honu</p>
+
+  <!-- フッター -->
+  <footer class="border-t border-slate-800/80 bg-slate-950 py-10 text-center text-xs text-slate-500">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>&copy; 2025 semantic-honu. All rights reserved.</div>
+      <div class="flex items-center gap-4">
+        <a href="https://github.com/semantic-honu" target="_blank" class="hover:text-slate-300 transition-colors">
+          <i class="fab fa-github text-base"></i>
+        </a>
+        <a href="https://zenn.dev/sem_honu" target="_blank" class="hover:text-slate-300 transition-colors font-bold">
+          Zenn
+        </a>
+      </div>
+    </div>
   </footer>
 
+  <script>
+    lucide.createIcons();
+  </script>
 </body>
+
 </html>
